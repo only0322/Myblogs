@@ -85,7 +85,7 @@ summaryLength = 2
 
   [params.sidebar]
     # Optional about block for sidebar (can be Markdown)
-    about = "见证技术大牛的成长吧。"
+    about = "一个C++工程师的学习记录"
 
     # How many posts to show on the sidebar (Default: 5)
     num_recent_posts = 2
