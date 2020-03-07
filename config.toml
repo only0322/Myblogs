@@ -29,6 +29,9 @@ summaryLength = 2
   name = "C/C++学习归档"
   url = "/cpp"
 
+[[menu.navbar]]
+  name="node.js学习"
+  url="/nodejs"
 
 [[menu.navbar]]
   name = "macOS&Linux学习"
@@ -85,7 +88,7 @@ summaryLength = 2
 
   [params.sidebar]
     # Optional about block for sidebar (can be Markdown)
-    about = "一个C++工程师的学习记录"
+    about = "为了梦想，为之努力吧！"
 
     # How many posts to show on the sidebar (Default: 5)
     num_recent_posts = 2
