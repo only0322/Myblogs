@@ -14,7 +14,7 @@ macOS或者Linux都可以，通过shell脚本实现
 
 # 脚本
 
-```
+```sh
 
 #/bin/bash
 

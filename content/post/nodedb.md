@@ -34,7 +34,7 @@ buffer转为方便操作的字符串`toString()`
 先引入MySQL模块`var mysql=require('mysql')`
 
 
-```
+```js
 var connection=mysql.createConnection({
     host:'172.161.25.xx',
     user:'hmsnc',
@@ -44,11 +44,11 @@ var connection=mysql.createConnection({
 ```
 但最好还是每次操作都重新创建连接，以防发生重连接的错误
 
-?磺`var connection=mysql.createConnection(dbconfig);`
+比如`var connection=mysql.createConnection(dbconfig);`
 
 向数据库插入数据
 
-```
+```js
 var addSql='insert into tb_paraData values(0,?,?,?,?,?,?,?)';
 var addparams=['JSON',fileversion,moment().format("YYYYMMDD"),record,JSON.stringify(myjson),filenameraw,"??Ч??"];
 

@@ -88,7 +88,7 @@ summaryLength = 2
 
   [params.sidebar]
     # Optional about block for sidebar (can be Markdown)
-    about = "为了梦想，为之努力吧！"
+    about = "Carpe diem!"
 
     # How many posts to show on the sidebar (Default: 5)
     num_recent_posts = 2

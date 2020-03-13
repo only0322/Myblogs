@@ -10,7 +10,7 @@ draft: true
 
 1. 用到的头文件及用法
 
-```
+```cpp
 #include <iostream>
 /*获取设置socket，bind*/
 
@@ -33,7 +33,7 @@ draft: true
 
 - 设置好连接的方式
 
-```
+```cpp
 sock.sin_family = AF_INET;
 sock.sin_addr.s_addr = inet_addr("127.0.0.1");
 sock.sin_port = htons(4000);//40975
@@ -43,14 +43,14 @@ result=connect(sockret,(struct sockaddr*)&sock,len);
 
 - 向服务端收发数据
 
-```
+```cpp
 write(sockret,&ch,1);
 read(sockret,&ch,1);
 ```
 
 3.源代码如下
 
-```
+```cpp
 #include <iostream>
 /*获取设置socket，bind*/
 #include<sys/socket.h>
@@ -97,7 +97,7 @@ int main()
 
 主要负责监听端口，并且响应连接请求。
 
-```
+```cpp
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>

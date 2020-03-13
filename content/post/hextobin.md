@@ -26,7 +26,7 @@ weekdatebin=PrefixInteger(weekdatebin,32);
 
 一种解决方案，就是将这24位的数拆分成3个8位进行处理，还有一种方式则是通过C语言的按位与思想，但是没有深入尝试了。
 
-```
+```js
 //转成二进制，按位读取  24位分3次处理
 console.log(weekdate);
 weekdatebin=weekdate.slice(0,8);
