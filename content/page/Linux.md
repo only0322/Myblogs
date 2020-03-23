@@ -8,3 +8,4 @@ draft: true
 2. [shell实现git项目自动更新](/post/gitauto)
 3. [如何在github高效地搜索项目](/post/gitsearch)
 4. [github下载加速](/post/gitfast)
+5. [用hugo搭建个人博客](/post/blog)
