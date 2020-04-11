@@ -6,7 +6,7 @@ draft: true
 #### 数据结构
 
 1. [单链表](.post/NodeList)
-2. [双向链表](.post/DoubleList)
+2. [双向链表](.post/doublelist)
 
 
 #### 算法
