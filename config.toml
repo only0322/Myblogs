@@ -30,8 +30,9 @@ summaryLength = 2
   url = "/cpp"
 
 [[menu.navbar]]
-  name="node.js学习"
-  url="/nodejs"
+  name = "Qt学习归档"
+  url = "/Qt"
+
 
 [[menu.navbar]]
   name = "macOS&Linux学习"
@@ -44,6 +45,10 @@ summaryLength = 2
 [[menu.navbar]]
   name = "数据结构&算法"
   url = "/shuju"
+
+[[menu.navbar]]
+  name="node.js学习"
+  url="/nodejs"
 
 # Theme variables
 #
