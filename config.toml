@@ -50,6 +50,10 @@ summaryLength = 2
   name="node.js学习"
   url="/nodejs"
 
+[[menu.navbar]]
+  name="前端知识汇总"
+  url="/front"
+
 # Theme variables
 #
 [params]
