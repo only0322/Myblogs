@@ -6,6 +6,7 @@ draft: true
 #### 别人的
 
 1. [webbench源码详细解析](/post/webbench)
+2. [RabbitMQ源码解析合集](/post/rabbitmq)
 
 #### 自己的
 
