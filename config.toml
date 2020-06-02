@@ -100,7 +100,7 @@ summaryLength = 2
     about = "吃薯条吗？不会。"
 
     # How many posts to show on the sidebar (Default: 5)
-    num_recent_posts = 2
+    num_recent_posts = 5
 
   [params.social]
     # Optional, used for attribution in Twitter cards (ideally not a person

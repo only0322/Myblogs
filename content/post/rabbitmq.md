@@ -5,3 +5,5 @@ draft: true
 ---
 
 1. [RabbitMQ的启动过程](./rmqstart)
+2. [RabbitMQ的消息机制](./rmqipc)
+3. [RabbitMQ消息重发、死信处理](./rmqdead)
