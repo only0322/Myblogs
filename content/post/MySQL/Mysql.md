@@ -5,5 +5,5 @@ draft: true
 ---
 
 1. [MySQL源码的目录结构](/post/mysql/mysqlsrc)
-2. [InnoDB索引的原理](/post/mysql/innodb)
+2. [InnoDB存储引擎相关知识](/post/mysql/innodb)
 3. [哈希表与哈希索引](/post/mysql/hashmap)
