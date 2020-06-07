@@ -7,7 +7,7 @@ theme = "hugo-theme-bootstrap4-blog"
 # number of posts to show on home/category/tag pages (Default: 10)
 paginate = 5
 # number of words to use for summary on home/category/tag pages (Default: 70)
-summaryLength = 2
+summaryLength = 10
 # optionally override the site's footer with custom copyright text
  copyright = "Except where otherwise noted, content on this site is licensed under a [Creative Commons Attribution 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/)."
 #googleAnalytics = "UA-123-45"
@@ -18,8 +18,8 @@ summaryLength = 2
   page = "/:filename/"
 
 [[menu.sidebar]]
-  name = "哔哩哔哩主页"
-  url = "https://space.bilibili.com/38921349?"
+  name = "码云主页"
+  url = "https://gitee.com/onlyyyy_admin"
 
 [[menu.sidebar]]
   name = "QQ交流群609376922"
@@ -53,6 +53,18 @@ summaryLength = 2
 [[menu.navbar]]
   name="前端知识汇总"
   url="/front"
+
+[[menu.navbar]]
+  name="编程知识大杂烩"
+  url="/allin"
+
+[[menu.navbar]]
+  name="其他语言"
+  url="/other"
+
+[[menu.navbar]]
+  name="我的程序人生"
+  url="/life"
 
 # Theme variables
 #
