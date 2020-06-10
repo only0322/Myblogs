@@ -174,11 +174,11 @@ Order by 中使用了函数也无法使用索引。
 
 我们假设一个页中只能存储5条数据：
 
-![1](/images/mysql/index1.png);
+![图1](/images/MySQL/index1.png)
 
 如果这时候我插入一条id为4的数据，那么我们就要在分配一个新页。由于5>4,索引是有序的，所以需要将id=5这条数据移动到下一页中，并插入一条id=4新的数据到页10中：
 
-![2](/images/mysql/index2.png);
+![图2](/images/MySQL/index2.png)
 
 #### 8. 减少对行锁的时间
 
