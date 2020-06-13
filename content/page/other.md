@@ -4,3 +4,4 @@ date: 2020-06-07T18:31:04+08:00
 draft: true
 ---
 
+1. [Rust](/post/Rust/rustmain)
