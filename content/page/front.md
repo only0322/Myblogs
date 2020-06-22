@@ -9,3 +9,4 @@ draft: true
 3. [学生管理系统](/post/front/vuestudent)
 4. [axios具体使用](/post/front/axios)
 5. [Vue电商管理系统](/post/front/pos)
+6. [Vue+Electron环境搭建](/post/front/elevue)
