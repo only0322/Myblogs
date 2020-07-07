@@ -21,3 +21,4 @@ draft: true
 
 
 1. [单例模式](/post/Other/singlepattern)
+2. [工厂模式](/post/Other/factorypattern)
