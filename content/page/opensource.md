@@ -8,6 +8,7 @@ draft: true
 1. [webbench源码详细解析](/post/opensource/webbench)
 2. [RabbitMQ源码解析合集](/post/rabbitmq/rabbitmq)
 3. [MySQL源码解析](/post/mysql/mysql)
+4. [Redis学习](/post/other/redis)
 
 #### 自己的
 
