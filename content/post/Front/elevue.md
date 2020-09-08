@@ -74,3 +74,24 @@ webpack.render.config.js：
 ```
 
 替换对应的函数即可
+
+
+
+## 三、白名单
+
+如果发现某个模块明明安装了但是说未找到，需要添加白名单。
+
+webpack.redener.config.js里面**const**下添加
+
+```js
+let whiteListedModules = [
+  'vue',
+		'axios',
+		'vue-electron',
+		'vue-router',
+		'vuex',
+		'vuex-electron',
+    'element-ui',
+    'view-design',
+]
+```
