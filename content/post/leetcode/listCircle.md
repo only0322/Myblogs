@@ -76,3 +76,38 @@ public:
     }
 };
 ```
+
+## 输出倒数第k个节点的值
+
+```cpp
+class Solution {
+public:
+    ListNode* FindKthToTail(ListNode* pListHead, unsigned int k) {
+        int length = 0;
+        ListNode * p = pListHead;
+        if(p == NULL)
+        {
+            return p;
+        }
+        while(p->next !=NULL)
+        {
+            p = p->next;
+            length++;
+        }
+        if(k>length+1)
+        {
+            return NULL;
+        }
+        int dest = length - k+1;
+        p = pListHead;
+        for(int i=0;i<dest;i++)
+        {
+            p = p->next;
+        }
+        return p;
+    }
+};
+```
+
+注意长度问题，和判断链表为空的问题。
+

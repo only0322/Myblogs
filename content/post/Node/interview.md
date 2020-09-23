@@ -46,7 +46,7 @@ fs.readFile(filePath, function(err, data) {
 
 Representational State Transfer（表象层状态转变），它由Roy Fielding于2000年论文中提出，它代表着分布式服务的架构风格。
 
-1.每一个URI代表一种资源； 
+1.每一个URL代表一种资源； 
 
 2.客户端和服务器之间，传递这种资源的某种表现层； 
 

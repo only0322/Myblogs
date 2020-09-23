@@ -7,3 +7,5 @@ draft: true
 1. [nodejs2进制转16进制](/post/node/hextobin)
 2. [koa库的具体使用](/post/node/koa)
 3. [Nodejs连接数据库、读取文件](/post/node/nodedb)
+4. [Nodejs面试大方向总结](/post/node/interview)
+5. [Nodejs闭包](/post/node/bibao)

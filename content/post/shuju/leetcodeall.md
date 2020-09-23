@@ -7,3 +7,4 @@ draft: true
 #### 牛客网
 
 1.[链表部分](/post/leetcode/listcircle)
+2.[位运算部分](/post/leetcode/binary)
