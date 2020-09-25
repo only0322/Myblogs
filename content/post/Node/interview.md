@@ -117,6 +117,3 @@ CommonJS规范加载模块是同步的，也就是说，只有加载完成，才
 在同目录下的demo.js文件中 var example = require('./example.js');
 
 
-
-
-
