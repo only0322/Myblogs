@@ -9,3 +9,4 @@ draft: true
 3. [Nodejs连接数据库、读取文件](/post/node/nodedb)
 4. [Nodejs面试大方向总结](/post/node/interview)
 5. [Nodejs闭包](/post/node/bibao)
+6. [Nodejs的垃圾回收](/post/node/gc)
