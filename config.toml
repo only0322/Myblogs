@@ -47,8 +47,12 @@ summaryLength = 10
   url = "/shuju"
 
 [[menu.navbar]]
-  name="node.js学习"
+  name="Node.js学习"
   url="/nodejs"
+
+[[menu.navbar]]
+ name="网络和数据库"
+ url="/netdb"
 
 [[menu.navbar]]
   name="前端知识汇总"
@@ -62,9 +66,11 @@ summaryLength = 10
   name="其他语言"
   url="/other"
 
-[[menu.navbar]]
-  name="我的程序人生"
-  url="/life"
+#[[menu.navbar]]
+#  name="我的程序人生"
+#  url="/life"
+
+
 
 # Theme variables
 #
