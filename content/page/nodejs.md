@@ -10,3 +10,4 @@ draft: true
 4. [Nodejs面试大方向总结](/post/node/interview)
 5. [Nodejs闭包](/post/node/bibao)
 6. [Nodejs的垃圾回收](/post/node/gc)
+7. [Nodejs按行读文件的简便方法n-readlines](/post/node/n-readlines)
