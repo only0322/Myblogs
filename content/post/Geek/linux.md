@@ -20,7 +20,7 @@ draft: true
 
 分层的权限机制:
 
-![内核图](/images/geek/linxu/thread0.png)
+![内核图](/images/geek/linux/thread0.png)
 
 1号进程本质上则是一个文件，运行各种配置信息：
 
@@ -56,7 +56,7 @@ ramdisk是为了防止要访问的东西越来越多，对其进行统一管理�
 
 讲述如何打开一个文件等操作。
 
-![调用](/images/geek/linxu/diaoyong.png)
+![调用](/images/geek/linux/diaoyong.png)
 
 ### 5.软连接和硬链接
 
@@ -81,4 +81,164 @@ ln oldfile newfile
 ln -s old.file soft.link
 ln -s old.dir soft.link.dir
 ```
+## 进程和线程
+
+### 1.进程调度
+
+Linux进程调度是将进程指针存放在红黑树中
+
+![调度](/images/geek/linux/diaodu.png)
+
+#### 1.1.主动调度
+
+这个片段可以看作写入块设备的一个典型场景。写入需要一段时间，这段时间用不上 CPU，还不如主动让给其他进程。
+
+```cpp
+static void btrfs_wait_for_no_snapshoting_writes(struct btrfs_root *root)
+{
+......
+  do {
+    prepare_to_wait(&root->subv_writers->wait, &wait,
+        TASK_UNINTERRUPTIBLE);
+    writers = percpu_counter_sum(&root->subv_writers->counter);
+    if (writers)
+      schedule();
+    finish_wait(&root->subv_writers->wait, &wait);
+  } while (writers);
+}
+```
+
+网络收发，数据库操作也有点类似主动调度。
+
+#### 1.2.抢占式调度
+
+最常见的现象就是一个进程执行时间太长了，是时候切换到另一个进程了。
+
+那怎么衡量一个进程的运行时间呢？在计算机里面有一个时钟，会过一段时间触发一次时钟中断，通知操作系统，时间又过去一个时钟周期，这是个很好的方式，可以查看是否是需要抢占的时间点。
+
+```cpp
+
+void scheduler_tick(void)
+{
+  int cpu = smp_processor_id();
+  struct rq *rq = cpu_rq(cpu);
+  struct task_struct *curr = rq->curr;
+......
+  curr->sched_class->task_tick(rq, curr, 0);
+  cpu_load_update_active(rq);
+  calc_global_load_tick(rq);
+......
+}
+```
+
+这个函数先取出当前 CPU 的运行队列，然后得到这个队列上当前正在运行中的进程的 task_struct，然后调用这个 task_struct 的调度类的 task_tick 函数，顾名思义这个函数就是来处理时钟事件的。
+
+
+- 用户态的抢占时机
+
+对于用户态的进程来讲，从系统调用中返回的那个时刻，是一个被抢占的时机。
+
+- 内核态的抢占时机
+
+在内核态的执行中，有的操作是不能被中断的，所以在进行这些操作之前，总是先调用 preempt_disable() 关闭抢占，当再次打开的时候，就是一次内核态代码被抢占的机会。
+
+### 2.进程创建流程
+
+第一步，复制进程结构。
+
+![复制进程](/images/geek/linux/复制进程.png)
+
+```cpp
+
+static __latent_entropy struct task_struct *copy_process(
+          unsigned long clone_flags,
+          unsigned long stack_start,
+          unsigned long stack_size,
+          int __user *child_tidptr,
+          struct pid *pid,
+          int trace,
+          unsigned long tls,
+          int node)
+{
+  int retval;
+  struct task_struct *p;
+......
+  p = dup_task_struct(current, node);
+```
+
+dup_task_struct 主要做了下面几件事情：
+
+- 调用 alloc_task_struct_node 分配一个 task_struct 结构；
+
+- 调用 alloc_thread_stack_node 来创建内核栈，这里面调用 __vmalloc_node_range 分配一个连续的 THREAD_SIZE 的内存空间，赋值给 task_struct 的 void *stack 成员变量；
+
+- 调用 arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)，将 task_struct 进行复制，其实就是调用 memcpy；调用 setup_thread_stack 设置 thread_info。
+
+
+
+copy_process：
+
+```cpp
+
+retval = copy_creds(p, clone_flags);
+```
+
+轮到权限相关了，copy_creds 主要做了下面几件事情：
+
+- 调用 prepare_creds，准备一个新的 struct cred *new。如何准备呢？其实还是从内存中分配一个新的 struct cred 结构，然后调用 memcpy 复制一份父进程的 cred；
+- 接着 p->cred = p->real_cred = get_cred(new)，将新进程的“我能操作谁”和“谁能操作我”两个权限都指向新的 cred。
+
+重新设置进程运行统计量
+
+```cpp
+
+p->utime = p->stime = p->gtime = 0;
+p->start_time = ktime_get_ns();
+p->real_start_time = ktime_get_boot_ns();
+```
+
+设置调度相关变量
+
+```cpp
+retval = sched_fork(clone_flags, p);
+```
+
+sched_fork 主要做了下面几件事情：
+
+- 调用 __sched_fork，在这里面将 on_rq 设为 0，初始化 sched_entity，将里面的 exec_start、sum_exec_runtime、prev_sum_exec_runtime、vruntime 都设为 0。你还记得吗，这几个变量涉及进程的实际运行时间和虚拟运行时间。是否到时间应该被调度了，就靠它们几个；
+
+- 设置进程的状态 p->state = TASK_NEW；初始化优先级 prio、normal_prio、static_prio；
+
+- 设置调度类，如果是普通进程，就设置为 p->sched_class = &fair_sched_class；调用调度类的 task_fork 函数，对于 CFS 来讲，就是调用 task_fork_fair。在这个函数里，先调用 update_curr，对于当前的进程进行统计量更新，然后把子进程和父进程的 vruntime 设成一样，最后调用 place_entity，初始化 sched_entity。这里有一个变量 sysctl_sched_child_runs_first，可以设置父进程和子进程谁先运行。如果设置了子进程先运行，即便两个进程的 vruntime 一样，也要把子进程的 sched_entity 放在前面，然后调用 resched_curr，标记当前运行的进程 TIF_NEED_RESCHED，也就是说，把父进程设置为应该被调度，这样下次调度的时候，父进程会被子进程抢占。
+
+```cpp
+retval = copy_files(clone_flags, p);
+retval = copy_fs(clone_flags, p);
+```
+
+
+唤醒新的进程，设置进程的状态，同时从队列中取出。
+
+```cpp
+
+void wake_up_new_task(struct task_struct *p)
+{
+  struct rq_flags rf;
+  struct rq *rq;
+......
+  p->state = TASK_RUNNING;
+......
+  activate_task(rq, p, ENQUEUE_NOCLOCK);
+  p->on_rq = TASK_ON_RQ_QUEUED;
+  trace_sched_wakeup_new(p);
+  check_preempt_curr(rq, p, WF_FORK);
+......
+}
+```
+
+### 3.创建线程
+
+![线程](/images/geek/linux/创建线程.png)
+
+## 内存管理
 
