@@ -79,7 +79,7 @@ summaryLength = 10
   author = "吉法师"
 
   # Description/subtitle for homepage (can be Markdown)
-  description = "技术没有高低贵贱之分，脑海中如果有想法的话，我们要做的就是去把它实现。"
+  description = "爱一个人就应该勇敢地追求，哪怕是粉身碎骨，也比到老了后悔要好得多。"
 
   # Show header (default: true)
   header_visible = true
@@ -115,7 +115,7 @@ summaryLength = 10
 
   [params.sidebar]
     # Optional about block for sidebar (can be Markdown)
-    about = "程序是有保质期的，而有些时候，它的保质期比紫米面包还短。"
+    about = "当我走在街上看到一颗奇怪的树，满脑子想的都是与你分享，我就知道我出大事了。"
 
     # How many posts to show on the sidebar (Default: 5)
     num_recent_posts = 10
