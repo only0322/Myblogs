@@ -743,3 +743,50 @@ mysql> select * from t where c=50000 limit 1;
 
 - 一个 bug：唯一索引上的范围查询会访问到不满足条件的第一个值为止。
 
+举例子：
+
+```sql
+CREATE TABLE `t` (
+  `id` int(11) NOT NULL,
+  `c` int(11) DEFAULT NULL,
+  `d` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `c` (`c`)
+) ENGINE=InnoDB;
+
+insert into t values(0,0,0),(5,5,5),
+(10,10,10),(15,15,15),(20,20,20),(25,25,25);
+```
+
+![等值查询间隙锁.png](/images/geek/mysql/等值查询间隙锁.png)
+
+由于表 t 中没有 id=7 的记录，所以用我们上面提到的加锁规则判断一下的话：
+
+根据原则 1，加锁单位是 next-key lock，session A 加锁范围就是 (5,10]；
+
+同时根据优化 2，这是一个等值查询 (id=7)，而 id=10 不满足查询条件，next-key lock 退化成间隙锁，因此最终加锁的范围是 (5,10)。
+
+所以，session B 要往这个间隙里面插入 id=8 的记录会被锁住，但是 session C 修改 id=10 这行是可以的。
+
+![非唯一索引等值锁](/images/geek/mysql/非唯一索引等值锁.png)
+
+看到这个例子，你是不是有一种“该锁的不锁，不该锁的乱锁”的感觉？我们来分析一下吧。
+
+这里 session A 要给索引 c 上 c=5 的这一行加上读锁。
+
+根据原则 1，加锁单位是 next-key lock，因此会给 (0,5]加上 next-key lock。要注意 c 是普通索引，因此仅访问 c=5 这一条记录是不能马上停下来的，需要向右遍历，查到 c=10 才放弃。
+
+根据原则 2，访问到的都要加锁，因此要给 (5,10]加 next-key lock。但是同时这个符合优化 2：等值判断，向右遍历，最后一个值不满足 c=5 这个等值条件，因此退化成间隙锁 (5,10)。
+
+根据原则 2 ，只有访问到的对象才会加锁，这个查询使用覆盖索引，并不需要访问主键索引，所以主键索引上没有加任何锁，这就是为什么 session B 的 update 语句可以执行完成。但 session C 要插入一个 (7,7,7) 的记录，就会被 session A 的间隙锁 (5,10) 锁住。
+
+需要注意，在这个例子中，lock in share mode 只锁覆盖索引，但是如果是 for update 就不一样了。 执行 for update 时，系统会认为你接下来要更新数据，因此会顺便给主键索引上满足条件的行加上行锁。
+
+这个例子说明，锁是加在索引上的；同时，它给我们的指导是，如果你要用 lock in share mode 来给行加读锁避免数据被更新的话，就必须得绕过覆盖索引的优化，在查询字段中加入索引中不存在的字段。
+
+比如，将 session A 的查询语句改成 select d from t where c=5 lock in share mode。你可以自己验证一下效果。
+
+具体可以参考[极客时间MySQL实战45讲](https://time.geekbang.org/column/article/75659?utm_campaign=guanwang&utm_source=baidu-ad&utm_medium=ppzq-pc&utm_content=title&utm_term=baidu-ad-ppzq-title)
+
+### 14.MySQL饮鸩止渴的提高性能方法
+
