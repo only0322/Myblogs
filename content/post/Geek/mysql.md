@@ -1043,3 +1043,195 @@ MySQL需要判断进程的连接状态。
 
 InnoDB 内存管理用的是最近最少使用 (Least Recently Used, LRU) 算法，这个算法的核心就是淘汰最久未使用的数据。
 
+### 23.到底可不可以问join
+
+join 语句到底是怎么执行的?
+
+```sql
+select * from t1 straight_join t2 on (t1.a=t2.a);
+```
+如果直接使用 join 语句，MySQL 优化器可能会选择表 t1 或 t2 作为驱动表，这样会影响我们分析 SQL 语句的执行过程。
+
+在这条语句里，被驱动表 t2 的字段 a 上有索引，join 过程用上了这个索引，因此这个语句的执行流程是这样的：
+
+1. 从表 t1 中读入一行数据 R；
+
+2. 从数据行 R 中，取出 a 字段到表 t2 里去查找；
+
+3. 取出表 t2 中满足条件的行，跟 R 组成一行，作为结果集的一部分；
+
+4. 重复执行步骤 1 到 3，直到表 t1 的末尾循环结束。
+
+如果不用join就必须先取出数据，程序里每次单独组SQL，在这种情况下是不如join效率高的。
+
+在这个 join 语句执行过程中，驱动表是走全表扫描，而被驱动表是走树搜索。
+
+**简而言之，结论是，应该让小表当驱动表。**
+
+参考[极客时间](https://time.geekbang.org/column/article/79700?utm_campaign=guanwang&utm_source=baidu-ad&utm_medium=ppzq-pc&utm_content=title&utm_term=baidu-ad-ppzq-title)
+
+join 语句的两种算法，分别是 Index Nested-Loop Join(NLJ) 和 Block Nested-Loop Join(BNL)。
+
+### 24.为什么临时表可以重名
+
+- 内存表，指的是使用 Memory 引擎的表，建表语法是 create table … engine=memory。这种表的数据都保存在内存里，系统重启的时候会被清空，但是表结构还在。除了这两个特性看上去比较“奇怪”外，从其他的特征上看，它就是一个正常的表。
+
+- 而临时表，可以使用各种引擎类型 。如果是使用 InnoDB 引擎或者 MyISAM 引擎的临时表，写数据的时候是写到磁盘上的。当然，临时表也可以使用 Memory 引擎。
+
+临时表在使用上有以下几个特点：
+
+1. 建表语法是 create temporary table …。
+
+2. 一个临时表只能被创建它的 session 访问，对其他线程不可见。所以，图中 session A 创建的临时表 t，对于 session B 就是不可见的。
+
+3. 临时表可以与普通表同名。
+
+4. session A 内有同名的临时表和普通表的时候，show create 语句，以及增删改查语句访问的是临时表。
+
+5. show tables 命令不显示临时表。
+
+### 25.什么时候会用内部临时表
+
+#### union
+
+```sql
+(select 1000 as f) union (select id from t1 order by id desc limit 2);
+```
+
+这条语句用到了 union，它的语义是，取这两个子查询结果的并集。并集的意思就是这两个集合加起来，重复的行只保留一行。
+
+这个语句的执行流程是这样的：
+
+1. 创建一个内存临时表，这个临时表只有一个整型字段 f，并且 f 是主键字段。执行第一个子查询，得到 1000 这个值，并存入临时表中。执行第二个子查询：
+
+2. 拿到第一行 id=1000，试图插入临时表中。但由于 1000 这个值已经存在于临时表了，违反了唯一性约束，所以插入失败，然后继续执行；
+
+3. 取到第二行 id=999，插入临时表成功。从临时表中按行取出数据，返回结果，并删除临时表，结果中包含两行数据分别是 1000 和 999。
+
+#### group by
+
+```sql
+select id%10 as m, count(*) as c from t1 group by m;
+```
+
+这个语句的执行流程是这样的：
+
+1. 创建内存临时表，表里有两个字段 m 和 c，主键是 m；扫描表 t1 的索引 a，依次取出叶子节点上的 id 值，计算 id%10 的结果，记为 x；
+
+2. 如果临时表中没有主键为 x 的行，就插入一个记录 (x,1);
+
+3. 如果表中有主键为 x 的行，就将 x 这一行的 c 值加 1；遍历完成后，再根据字段 m 做排序，得到结果集返回给客户端。
+
+### 26.要不要使用内存表 momery引擎的特性
+
+由于重启会丢数据，如果一个备库重启，会导致主备同步线程停止；如果主库跟这个备库是双 M 架构，还可能导致主库的内存表数据被删掉。因此，在生产上，我不建议你使用普通内存表。
+
+### 27.自增主键为什么不是连续的
+
+在 MySQL 5.7 及之前的版本，自增值保存在内存里，并没有持久化。每次重启后，第一次打开表的时候，都会去找自增值的最大值 max(id)，然后将 max(id)+1 作为这个表当前的自增值。
+
+在 MySQL 里面，如果字段 id 被定义为 AUTO_INCREMENT，在插入一行数据的时候，自增值的行为如下：
+
+1. 如果插入数据时 id 字段指定为 0、null 或未指定值，那么就把这个表当前的 AUTO_INCREMENT 值填到自增字段；
+
+2. 如果插入数据时 id 字段指定了具体的值，就直接使用语句里指定的值。
+
+根据要插入的值和当前自增值的大小关系，自增值的变更结果也会有所不同。
+
+假设，某次要插入的值是 X，当前的自增值是 Y。
+
+```
+如果 X<Y，那么这个表的自增值不变；如果 X≥Y，就需要把当前自增值修改为新的自增值。
+```
+
+假设，表 t 里面已经有了 (1,1,1) 这条记录，这时我再执行一条插入数据命令
+
+```sql
+insert into t values(null, 1, 1); 
+```
+
+这个语句的执行流程就是：
+
+1. 执行器调用 InnoDB 引擎接口写入一行，传入的这一行的值是 (0,1,1);
+
+2. InnoDB 发现用户没有指定自增 id 的值，获取表 t 当前的自增值 2；
+
+3. 将传入的行的值改成 (2,1,1);将表的自增值改成 3；
+
+4. 继续执行插入数据操作，由于已经存在 c=1 的记录，所以报 Duplicate key error，语句返回。
+
+可以看到，这个表的自增值改成 3，是在真正执行插入数据的操作之前。这个语句真正执行的时候，因为碰到唯一键 c 冲突，所以 id=2 这一行并没有插入成功，但也没有将自增值再改回去。
+
+唯一键冲突是导致自增主键 id 不连续的第一种原因。同样地，事务回滚也会产生类似的现象，这就是第二种原因。
+
+```sql
+insert into t values(null,1,1);
+begin;
+insert into t values(null,2,2);
+rollback;
+insert into t values(null,2,2);
+//插入的行是(3,2,2)
+```
+
+### 28.insert语句的锁为什么这么多？
+
+[insert锁](https://time.geekbang.org/column/article/80801?utm_campaign=guanwang&utm_source=baidu-ad&utm_medium=ppzq-pc&utm_content=title&utm_term=baidu-ad-ppzq-title)
+
+### 29.怎么最快地复制一张表？
+
+#### mysqldump方法
+
+```sql
+mysqldump -h$host -P$port -u$user --add-locks=0 --no-create-info --single-transaction  --set-gtid-purged=OFF db1 t --where="a>900" --result-file=/client_tmp/t.sql
+```
+
+这条命令中，主要参数含义如下：
+
+1. –single-transaction 的作用是，在导出数据的时候不需要对表 db1.t 加表锁，而是使用 START TRANSACTION WITH CONSISTENT SNAPSHOT 的方法；
+
+2. –add-locks 设置为 0，表示在输出的文件结果里，不增加" LOCK TABLES t WRITE;" ；
+
+3. –no-create-info 的意思是，不需要导出表结构；
+
+4. –set-gtid-purged=off 表示的是，不输出跟 GTID 相关的信息；
+
+5. –result-file 指定了输出文件的路径，其中 client 表示生成的文件是在客户端机器上的。
+
+#### 导出csv文件
+
+```
+select * from db1.t where a>900 into outfile '/server_tmp/t.csv';
+```
+
+#### 物理拷贝方法
+
+直接复制不可行。
+
+因为，一个 InnoDB 表，除了包含这两个物理文件外，还需要在数据字典中注册。直接拷贝这两个文件的话，因为数据字典中没有 db2.t 这个表，系统是不会识别和接受它们的。
+
+### 30. grant 之后是否需要刷新
+
+如果内存的权限数据和磁盘数据表相同的话，不需要执行 flush privileges。而如果我们都是用 grant/revoke 语句来执行的话，内存和数据表本来就是保持同步更新的。因此，正常情况下，grant 命令之后，没有必要跟着执行 flush privileges 命令。
+
+直接操作系统表是不规范的操作。
+
+### 31.自增id用完怎么办？
+
+每种自增 id 有各自的应用场景，在达到上限后的表现也不同：
+
+1. 表的自增 id 达到上限后，再申请时它的值就不会改变，进而导致继续插入数据时报主键冲突的错误。
+
+2. row_id 达到上限后，则会归 0 再重新递增，如果出现相同的 row_id，后写的数据会覆盖之前的数据。
+
+3. Xid 只需要不在同一个 binlog 文件中出现重复值即可。虽然理论上会出现重复值，但是概率极小，可以忽略不计。
+
+4. InnoDB 的 max_trx_id 递增值每次 MySQL 重启都会被保存起来，所以我们文章中提到的脏读的例子就是一个必现的 bug，好在留给我们的时间还很充裕。
+
+5. thread_id 是我们使用中最常见的，而且也是处理得最好的一个自增 id 逻辑了。
+
+
+
+### 结课
+
+后面有需要再补充吧。
+
