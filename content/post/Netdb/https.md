@@ -41,6 +41,15 @@ HTTPS （全称：Hyper Text Transfer Protocol over SecureSocket Layer），是�
 
 ## 三、非对称加密与对称加密的性能分析
 
+### 主要问题
+
+1. RSA算法加密流程。
+
+2. AES算法加密流程。
+
+3. 四则运算与逻辑运算的性能差异。
+
+
 ### RSA：
 
 1. 随机选择两个不相等的质数p和11和13。（实际应用中，这两个质数越大，就越难破解。）
