@@ -172,3 +172,43 @@ Https通过用RSA加密AES的密钥传输，解密后再通过对称加密进行
 实际上证书之间的认证也可以不止一层，可以A信任B，B信任C，以此类推，我们把它叫做信任链或数字证书链，也就是一连串的数字证书，由根证书为起点，透过层层信任，使终端实体证书的持有者可以获得转授的信任，以证明身份。
 
 微软的操作系统会预装一些可信的根证书，为这一举措背书的实际上是国家和政府。
+
+## 哈希算法实现
+
+```c
+
+// DJB Hash 
+unsigned int DJBHash(char *str)
+{
+    unsigned int hash = 5381;
+ 
+    while (*str)
+    {
+        hash += (hash << 5) + (*str++);
+    }
+ 
+    return (hash & 0x7FFFFFFF);
+}
+ 
+// AP Hash 
+unsigned int APHash(char *str)
+{
+    unsigned int hash = 0;
+    int i;
+ 
+    for (i=0; *str; i++)
+    {
+        if ((i & 1) == 0)
+        {
+            hash ^= ((hash << 7) ^ (*str++) ^ (hash >> 3));
+        }
+        else
+        {
+            hash ^= (~((hash << 11) ^ (*str++) ^ (hash >> 5)));
+        }
+    }
+ 
+    return (hash & 0x7FFFFFFF);
+}
+
+```
