@@ -104,6 +104,9 @@ else return gcd(b,a%b);
 }
 ```
 
+假设对m加密得密文c，则c  = me  (mod n)， m = cd(mod n)。
+
+
 ### AES
 
 字节代换、行移位、列混合、轮密钥加。
