@@ -52,7 +52,7 @@ HTTPS （全称：Hyper Text Transfer Protocol over SecureSocket Layer），是�
 
 ### RSA：
 
-1. 随机选择两个不相等的质数p和11和13。（实际应用中，这两个质数越大，就越难破解。）
+1. 随机选择两个**不相等**的质数p和11和13。（实际应用中，这两个质数越大，就越难破解。）
 
 2. 计算p和q的乘积n。n = 11×13 = 143
 
@@ -78,7 +78,6 @@ HTTPS （全称：Hyper Text Transfer Protocol over SecureSocket Layer），是�
      120 = 7 * 17 + 1；
      17 = 17 * 1；
      1 = 120 * 1 + 7 * (-17)；
-     1 = 120 * 1 + 7 *(-17)；
     最终得出，d = -17 k = 1；
     ```
 
