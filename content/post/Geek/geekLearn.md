@@ -8,3 +8,4 @@ draft: true
 2. [数据结构与算法之美](/post/geek/shuju)
 3. [趣谈Linux操作系统](/post/geek/linux)
 4. [MySQL实战45讲](/post/geek/mysql)
+5. [JavaScript核心原理解析](/post/geek/javascript)
