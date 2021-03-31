@@ -71,3 +71,6 @@ console.log(a);
 
 但是带有var let const的变量就不是表达式而是一个标识符了。
 
+### 4.export default function() {}：你无法导出一个匿名函数表达式
+
+顺便说下JavaScript的模块技术
