@@ -73,4 +73,71 @@ console.log(a);
 
 ### 4.export default function() {}：你无法导出一个匿名函数表达式
 
-顺便说下JavaScript的模块技术
+顺便说下JavaScript的模块技术，以下是导出的方式：
+
+```js
+
+// 导出“（声明的）名字”
+export <let/const/var> x ...;
+export function x() ...
+export class x ...
+export {x, y, z, ...};
+
+
+// 导出“（重命名的）名字”
+export { x as y, ...};
+export { x as default, ... };
+
+
+// 导出“（其它模块的）名字”
+export ... from ...;
+
+
+// 导出“值”
+export default <expression
+```
+
+但是对于最后这种形式，也就是“（导出）值”的形式，事实上是非常特殊的。
+
+因为如要导出一个模块的全部内容就必须导出“（全部的）名字和值”，然而纯粹的值没有名字，于是也就没法访问了，所以这就与“导出点什么东西”的概念矛盾了。
+
+所以 ECMAScript 6 模块约定了一个称为"default"的名字，用于来导出当前模块中的一个“值”。
+
+```js
+
+var varName = 100;
+export default {
+  varName,  // 直接导出名字
+  propName: 123,  // 导出值
+  funcName: function() { }, // 导出函数
+  foo() { // 或导出与主对象相关联的方法
+     // method
+  }
+}
+```
+
+export做了下面两件事：导出一个名字，为上述名字绑定一个值
+
+和用let声明一个变量的过程是一致的。
+
+import则做如下工作：按照语法在当前模块声明名字，添加一个当前模块对目标模块的依赖项。
+
+有了上述的第二步操作，JavaScript 就可以依据所有它能在静态文本中发现的import语句来形成模块依赖树，最后就可以找到这个模块依赖树最顶端的根模块，并尝试加载之。
+
+**在处理 export/import 语句的全程，没有表达式被执行**
+
+按照 JavaScript 的约定，匿名函数表达式可以理解为一个函数的“字面量（值）;
+
+```js
+let a = function b () {
+
+}
+
+a();
+b();//此时会报错 b is not defined
+```
+
+export ...语句通常是按它的词法声明来创建的标识符的，例如export var x = ...就意味着在当前模块环境中创建的是一个变量，并可以修改等等。但是当它被导入时，在import语句所在的模块中却是一个常量，因此总是不可写的。
+
+由于export default ...没有显式地约定名字“default（或default）”应该按let/const/var的哪一种来创建，因此 JavaScript 缺省将它创建成一个普通的变量（var），但即使是在当前模块环境中，它事实上也是不可写的，因为你无法访问一个命名为“default”的变量——它不是一个合法的标识符。
+
