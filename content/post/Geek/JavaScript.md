@@ -53,10 +53,8 @@ function main() {
     let a = b = 0;
 }
 main();
-console.log(b);
-console.log(a);
-//0
-//ReferenceError: a is not defined
+console.log(b); //0
+console.log(a); //ReferenceError: a is not defined
 ```
 
 赋值表达式也是有结果的，它的结果是右操作数的值。
@@ -140,4 +138,75 @@ b();//此时会报错 b is not defined
 export ...语句通常是按它的词法声明来创建的标识符的，例如export var x = ...就意味着在当前模块环境中创建的是一个变量，并可以修改等等。但是当它被导入时，在import语句所在的模块中却是一个常量，因此总是不可写的。
 
 由于export default ...没有显式地约定名字“default（或default）”应该按let/const/var的哪一种来创建，因此 JavaScript 缺省将它创建成一个普通的变量（var），但即使是在当前模块环境中，它事实上也是不可写的，因为你无法访问一个命名为“default”的变量——它不是一个合法的标识符。
+
+### 4.for循环并不比使用函数递归节省开销
+
+块级作用域：大括号划分的一个区域
+
+switch语句只有一个作用域。
+
+```js
+var x = 1, c = 'a';
+switch (c) {
+    case 'a':
+        console.log(x); // ReferenceError
+        break;
+    case 'b':
+        let x = 200;
+        break;
+}
+```
+
+**主要是let又重新申明了**
+
+在这个例子中，switch 语句内是无法访问到外部变量x的，即便声明变量x的分支case 'b'永远都执行不到。这是因为所有分支都处在同一个块级作用域中，所以任意分支的声明都会给该作用域添加这个标识符，从而覆盖了全局的变量x。
+
+还有try catch finally with
+
+由于函数存在“重新进入”的问题，所以它必须有一个作用域来管理“重新进入之前”的那些标识符。这个东西想必你是听说过的，它被称为“闭包”。
+
+`for(var x = ...)`就是变量提升，越过当前语法范围，在更外围的作用域登记名字。
+
+在循环体内是否需要一个新的块级作用域呢？这取决于在语言设计上是否支持如下代码：
+
+```js
+for (let x = 102; x < 105; x++)
+  let x = 200;
+```
+
+JavaScript是不允许申明新的变量的，但这却是一个普遍存在的语法禁例。
+
+```js
+
+// if语句中的禁例
+if (false) let x = 100;
+
+// while语句中的禁例
+while (false) let x = 200;
+
+// with语句中的禁例
+with (0) let x = 300
+```
+
+所以，现在可以确定：循环语句（对于支持“let/const”的 for 语句来说）“通常情况下”只支持一个块级作用域。
+
+更进一步地说，在上面的代码中，我们并没有机会覆盖 for 语句中的“let/const”声明。
+
+但`for(let i=0;...)`这样的代码显然必须增加作用域了。
+
+在语法设计上，需要为使用let/const声明循环变量的 for 语句多添加一个作用域。
+
+在 JavaScript 的具体执行过程中，作用域是被作为环境的上下文来创建的。如果将 for 语句的块级作用域称为 forEnv，并将上述为循环体增加的作用域称为 loopEnv，那么 loopEnv 它的外部环境就指向 forEnv。于是在 loopEnv 看来，变量i其实是登记在父级作用域 forEnv 中，并且 loopEnv 只能使用它作为名字“i”的一个引用。
+
+更准确地说，在 loopEnv 中访问变量i，在本质上就是通过环境链回溯来查找标识符（Resolve identifier, or Get Identifier Reference）。
+
+```js
+
+for (let i in x)
+  setTimeout(()=>console.log(i), 1000);
+```
+
+这样的代码显然需要创建无数个副本才能使运行结果符合预期。
+
+一种理论上的观点，也就是所谓“循环与函数递归在语义上等价”。所以在事实上，上述这种 for 循环并不比使用函数递归节省开销。
 
