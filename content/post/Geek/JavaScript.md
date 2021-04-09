@@ -291,3 +291,62 @@ ECMAScript 语言约定，在块中的多个语句顺序执行时，遵从两条
 
 `throw(1/0)`
 
+## 三、从原型到类：JavaScript是如何构建的
+
+### 1.JavaScript的对象
+
+```js
+
+scope = {
+  object: <创建本闭包的对象或函数>,
+  parent: <父级的scope>
+}
+```
+
+#### 字面量和标识符
+
+通常情况下，开发人员会将标识符直接称为名字（在 ECMAScript 规范中，它的全称是“标识符名字（IdentifierName）”），而字面量是一个数据的文本表示。显然，通常标识符就用作后者的名字标识。
+
+对于这两种东西，在 ECMAScript 中的处理机制并不太一样，并且在文本解析阶段就会把二者区分开来。
+
+```js
+// var x = 1;
+1;
+x;
+```
+
+如果其中“1”是字面量值，JavaScript 会直接处理它；而 x 是一个标识符（哪怕它只是一个值类型数据的变量名），就需要建立一个“引用”来处理了。
+
+源于 JavaScript 中面向对象系统的独特设计，它的对象属性存取结果总是不确定的。
+
+- 如果属性不是自有的，那么它的值就是原型决定的；
+
+- 当属性是存取方法的，那么它的值就是求值决定的。
+
+### 2.对象构造的过程
+
+ECMAScript 6 开始，JavaScript 有了使用class来声明“类”的语法(之前是function + this)。
+
+自此之后，JavaScript 的“类”与“函数”有了明确的区别：类只能用 new 运算来创建，而不能使用“()”来做函数调用。例如：
+
+```js
+> new AClass()
+AClass {}
+
+> AClass()
+TypeError: Class constructor AClass cannot be invoked without 'new'
+```
+
+同时也不能对方法做new运算:
+```js
+# 对方法使用new运算会导致异常> 
+new obj.foo()
+TypeError: obj.foo is not a constructor
+```
+
+在 ECMAScript 6 之后，函数可以简单地分为三个大类：
+
+1. 类：只可以做 new 运算；
+2. 方法：只可以做调用“( )”运算；
+3. 一般函数：（除部分函数有特殊限制外，）同时可以做 new 和调用运算。
+
