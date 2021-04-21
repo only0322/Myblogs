@@ -412,5 +412,112 @@ JavaScript的类型转换规则：
 
 2. 从引用 x 到值，调用 x.valueOf() 方法；或调用 4 种值类型的包装类函数，例如 Number(x)，或者 String(x) 等等。
 
+
+“从值 x 到引用”。因为主要的值类型都有对应的引用类型，因此 JavaScript 可以用简单方法一一对应地将它们转换过去。
+
 使用`Object(x)`不管x本身是什么，都会返回一个对象
 
+
+类似的还包括字符串、布尔值、符号等。而 null、undefined 将被转换为一个一般的、空白的对象，与new Object或一个空白字面量对象（也就是{ }）的效果一样。
+
+这个运算非常好用的地方在于，如果 x 已经是一个对象，那么它只会返回原对象，而不会做任何操作。**也就是说，它没有任何的副作用。**
+
+任何对象都会有继承自原型的两个方法，称为toString()和valueOf()，这是 JavaScript 中“对象转换为值”的关键。
+
+一般而言，你可以认为“任何东西都是可以转换为字符串的”，这个很容易理解，比如JSON.stringify()就利用了这一个简单的假设，它“几乎”可以将 JavaScript 中的任何对象或数据，转换成 JSON 格式的文本。
+
+#### 函数怎么转成字符串
+
+从最基础的来说，函数有两个层面的含义，一个是它的可执行代码，也就是文本形式的源代码；另一个则是函数作为对象，也有自己的属性。
+
+```js
+> x = Object(Symbol())
+[Symbol: Symbol()]
+```
+
+但是函数转字符串，并没有什么实际的意义。
+
+JavaScript 约定，所有“对象 -> 值”的转换结果要尽量地趋近于 string、number 和 boolean 三者之一。
+
+不过这从来都不是“书面的约定”，而是因为 JavaScript 在早期的作用，就是用于浏览器上的开发，而：
+
+- 浏览器可以显示的东西，是 string；
+
+- 可以计算的东西，是 number；
+
+- 可以表达逻辑的东西，是 boolean。
+
+JS将数据放到对象实例的内部槽中
+
+```js
+obj = Object(x);
+
+// 等效于（如果能操作内部槽的话）
+obj.[[PrimitiveValue]] = x;
+```
+
+ECMAScript 为了兼容旧版本的 JavaScript，直接将这个转换定义成了一张表格，这个表格在 ECMAScript 规范或者我们常用的MDN（Mozilla Developer Network）上可以直接查到
+
+。简单地说，就是除了 undefined、null、0、NaN、""（empty string）以及 BigInt 中的 0n 返回 false 之外，其他的值转换为 boolean 时，都将是 true 值。
+
+```js
+> x = 100n;  // `bigint` value
+> String(x)  // to `string` value
+'100n'
+
+> Boolean(x); // to `boolean` value
+true
+```
+
+ECMAScript 在后期就倾向于抛弃隐式类型转换，多数的“新方法”在发现类型不匹配的时候，都设计为显式地抛出类型错误。一个典型的结果就是，在 ECMAScript 3 的时代，TypeError 这个词在规范中出现的次数是 24 次；到了 ECMAScript 5，是 114 次；而 ECMAScript 6 开始就暴增到 419 次。
+
+输出的结果，总是会“收敛”到两种类型：字符串，或者数值。“隐式转换”其实只是表面现象，核心的问题是，这种转换的结果总是倾向于“string/number”两种值类型。
+
+#### 类型转换和求值的规则
+
+JavaScript 约定：如果x原本就是原始值，那么取值操作直接就返回x本身。
+
+JavaScript 有一项特别的设定，就是对“引擎推断目的”这一行为做一个预设。如果某个运算没有预设目的，而 JavaScript 也不能推断目的，那么 JavaScript 就会强制将这个预设为“number”，并进入“传统的”类型转换逻辑
+
+**如果一个运算无法确定类型，那么在类型转换前，它的运算数将被预设为 number**
+
+JS会自动插入分号，所以：
+
+```js
+# +[] 将等义于
+> + Number([])
+0
+
+# +{} 将等义于
+> + Number({})
+NaN
+```
+
+### 2.函数的类化
+
+```js
+new Function('x = 100')();
+```
+
+这里稍微需要强调一下的是“最后一对括号的使用”，由于运算符优先级的设计，它是在 new 运算之后才被调用的。
+
+```js
+
+// （等义于）
+(new Function('x = 100'))()
+
+// （或）
+f = new Function('x = 100')
+f()
+```
+
+也就是说：
+
+```js
+new Function(x)
+
+// vs.
+Function(x)
+```
+
+That's all
