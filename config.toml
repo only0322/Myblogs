@@ -79,7 +79,7 @@ summaryLength = 10
   author = "吉法师"
 
   # Description/subtitle for homepage (can be Markdown)
-  description = "爱一个人就应该勇敢地追求，哪怕是粉身碎骨，也比到老了后悔要好得多。"
+  description = "努力学习，珍惜时间"
 
   # Show header (default: true)
   header_visible = true
