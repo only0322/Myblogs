@@ -33,7 +33,6 @@ summaryLength = 10
   name = "Qt学习归档"
   url = "/Qt"
 
-
 [[menu.navbar]]
   name = "macOS&Linux学习"
   url = "/Linux"
@@ -65,6 +64,10 @@ summaryLength = 10
 [[menu.navbar]]
   name="其他语言"
   url="/other"
+
+[[menu.navbar]]
+  name="数学"
+  url="/math"
 
 #[[menu.navbar]]
 #  name="我的程序人生"
