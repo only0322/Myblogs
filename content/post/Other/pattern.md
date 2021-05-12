@@ -20,5 +20,47 @@ draft: true
 行为型模式，共十一种：策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式、解释器模式。
 
 
-1. [单例模式](/post/Other/singlepattern)
-2. [工厂模式](/post/Other/factorypattern)
+## 一、单例模式
+
+概念：
+
+1. 单例类只能有一个实例。
+2. 单例类必须自己创建自己的唯一实例。
+3. 单例类必须给所有其他对象提供这一实例。
+
+
+
+以Node.js代码为例：
+
+
+```js
+//类定义
+class HttpManager {
+    constructor() {
+        
+    }
+}
+
+exports.http = new HttpManager();
+
+//main.js
+
+const HttpManager = require('./HttpManager.js');
+async function main() {
+    let http = new HttpManager();
+    global.http = http;
+}
+
+main();
+```
+
+优点：
+1. 在内存中只有一个实例，减少内存开销，同时不需要考虑资源的多重占用。
+2. 在Nodejs中，这样可以全局地调用这些类的方法，不需要导入模块了。
+
+缺点：
+1. 在Vscode中，这样实现单例类不能进行代码跳转，极其考验对系统的理解能力。
+2. 没有接口，不能继承（私有），与单一职责原则冲突，一个类应该只关心内部逻辑，而不关心外面怎么样来实例化。
+
+**单例类设计出来，就是为了不让别人继承，可能内部也没有资源加解锁的逻辑？**
+
