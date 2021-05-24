@@ -100,3 +100,195 @@ main();
 
 一个 Builder 类会一步一步构造最终的对象。该 Builder 类是独立于其他对象的。
 
+简单来说就是不断扩展类的过程：
+
+1. 在Computer 中创建一个静态内部类 Builder，然后将Computer 中的参数都复制到Builder类中。
+2. 在Computer中创建一个private的构造函数，参数为Builder类型
+3. 在Builder中创建一个public的构造函数，参数为Computer中必填的那些参数，cpu 和ram。
+4. 在Builder中创建设置函数，对Computer中那些可选参数进行赋值，返回值为Builder类型的实例
+5. 在Builder中创建一个build()方法，在其中构建Computer的实例并返回
+
+
+```java
+public class Computer {
+    private final String cpu;//必须
+    private final String ram;//必须
+    private final int usbCount;//可选
+    private final String keyboard;//可选
+    private final String display;//可选
+
+    private Computer(Builder builder){
+        this.cpu=builder.cpu;
+        this.ram=builder.ram;
+        this.usbCount=builder.usbCount;
+        this.keyboard=builder.keyboard;
+        this.display=builder.display;
+    }
+    public static class Builder{
+        private String cpu;//必须
+        private String ram;//必须
+        private int usbCount;//可选
+        private String keyboard;//可选
+        private String display;//可选
+
+        public Builder(String cup,String ram){
+            this.cpu=cup;
+            this.ram=ram;
+        }
+
+        public Builder setUsbCount(int usbCount) {
+            this.usbCount = usbCount;
+            return this;
+        }
+        public Builder setKeyboard(String keyboard) {
+            this.keyboard = keyboard;
+            return this;
+        }
+        public Builder setDisplay(String display) {
+            this.display = display;
+            return this;
+        }        
+        public Computer build(){
+            return new Computer(this);
+        }
+    }
+  //省略getter方法
+}
+
+Computer computer=new Computer.Builder("因特尔","三星")
+                .setDisplay("三星24寸")
+                .setKeyboard("罗技")
+                .setUsbCount(2)
+                .build();
+```
+
+### 五、原型模式
+
+用一个已经创建的实例作为原型，通过复制该原型对象来创建一个和原型相同或相似的新对象。在这里，原型实例指定了要创建的对象的种类。用这种方式创建对象非常高效，根本无须知道对象创建的细节。例如，Windows 操作系统的安装通常较耗时，如果复制就快了很多。
+
+原型模式的优点：
+
+- Java 自带的原型模式基于内存二进制流的复制，在性能上比直接 new 一个对象更加优良。
+- 可以使用深克隆方式保存对象的状态，使用原型模式将对象复制一份，并将其状态保存起来，简化了创建对象的过程，以便在需要的时候使用（例如恢复到历史某一状态），可辅助实现撤销操作。
+
+原型模式的缺点：
+
+- 需要为每一个类都配置一个 clone 方法。
+- clone 方法位于类的内部，当对已有类进行改造的时候，需要修改代码，违背了开闭原则。
+- 当实现深克隆时，需要编写较为复杂的代码，而且当对象之间存在多重嵌套引用时，为了实现深克隆，每一层对象对应的类都必须支持深克隆，实现起来会比较麻烦。因此，深克隆、浅克隆需要运用得当。
+
+原型模式的克隆分为浅克隆和深克隆。
+
+- 浅克隆：创建一个新对象，新对象的属性和原来对象完全相同，对于非基本类型属性，仍指向原有属性所指向的对象的内存地址。
+
+- 深克隆：创建一个新对象，属性中引用的其他对象也会被克隆，不再指向原有对象地址。
+
+```java
+import java.util.*;
+
+interface Shape extends Cloneable {
+    public Object clone();    //拷贝
+
+    public void countArea();    //计算面积
+}
+
+class Circle implements Shape {
+    public Object clone() {
+        Circle w = null;
+        try {
+            w = (Circle) super.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("拷贝圆失败!");
+        }
+        return w;
+    }
+
+    public void countArea() {
+        int r = 0;
+        System.out.print("这是一个圆，请输入圆的半径：");
+        Scanner input = new Scanner(System.in);
+        r = input.nextInt();
+        System.out.println("该圆的面积=" + 3.1415 * r * r + "\n");
+    }
+}
+
+class Square implements Shape {
+    public Object clone() {
+        Square b = null;
+        try {
+            b = (Square) super.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("拷贝正方形失败!");
+        }
+        return b;
+    }
+
+    public void countArea() {
+        int a = 0;
+        System.out.print("这是一个正方形，请输入它的边长：");
+        Scanner input = new Scanner(System.in);
+        a = input.nextInt();
+        System.out.println("该正方形的面积=" + a * a + "\n");
+    }
+}
+
+class ProtoTypeManager {
+    private HashMap<String, Shape> ht = new HashMap<String, Shape>();
+
+    public ProtoTypeManager() {
+        ht.put("Circle", new Circle());
+        ht.put("Square", new Square());
+    }
+
+    public void addshape(String key, Shape obj) {
+        ht.put(key, obj);
+    }
+
+    public Shape getShape(String key) {
+        Shape temp = ht.get(key);
+        return (Shape) temp.clone();
+    }
+}
+
+public class ProtoTypeShape {
+    public static void main(String[] args) {
+        ProtoTypeManager pm = new ProtoTypeManager();
+        Shape obj1 = (Circle) pm.getShape("Circle");
+        obj1.countArea();
+        Shape obj2 = (Shape) pm.getShape("Square");
+        obj2.countArea();
+    }
+}
+```
+
+
+### 六、适配器模式
+
+将一个类的接口转换成客户希望的另外一个接口。适配器模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
+
+#### 用途
+
+主要解决在软件系统中，常常要将一些"现存的对象"放到新的环境中，而新环境要求的接口是现对象不能满足的。
+
+
+```ts
+public class AC110 implements AC {
+    public final int output = 110;
+
+    @Override
+    public int outputAC() {
+        return output;
+    }
+}
+
+public class AC220 implements AC {
+    public final int output = 220;
+
+    @Override
+    public int outputAC() {
+        return output;
+    }
+}
+
+```
+
