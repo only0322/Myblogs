@@ -74,6 +74,10 @@ summaryLength = 10
 #  url="/life"
 
 
+[[menu.navbar]]
+  name="文学"
+  url="/book"
+
 
 # Theme variables
 #
