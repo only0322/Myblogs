@@ -5,3 +5,4 @@ draft: true
 ---
 
 1. [纯粹理性批判解析](/post/book/critique)
+2. [纯粹理性批判总结](/post/book/critiquesummary)
