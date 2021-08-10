@@ -13,5 +13,5 @@ draft: true
 
 ### 其他
 
-1. [极客时间学习汇总](/post/geek/geekLearn)
+1. [极客时间学习汇总](/post/geek/geeklearn)
 
