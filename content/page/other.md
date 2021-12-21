@@ -6,3 +6,4 @@ draft: true
 
 1. [Rust学习](/post/rust/rustmain)
 2. [Go学习](/post/go/base)
+3. [wrk使用](/post/other/wrk)
