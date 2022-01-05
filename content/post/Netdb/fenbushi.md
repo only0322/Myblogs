@@ -51,7 +51,7 @@ SAN: Storage Aera Network; 块级别, 例如IP SAN, FC SAN…
 
 ### 常见的分布式文件存储系统
 
-1）GFS（Google File System）:-----GFS擅长处理单个大文件 
+1）GFS（Google File System）:-----GFS擅长处理单个大文件
 
 2）HDFS（Hadoop Distributed Filesystem）：擅长处理单个大文件
 

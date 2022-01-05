@@ -30,8 +30,8 @@ summaryLength = 10
   url = "/cpp"
 
 [[menu.navbar]]
-  name = "Qt学习归档"
-  url = "/Qt"
+  name = "Java学习归档"
+  url = "/java"
 
 [[menu.navbar]]
   name = "macOS&Linux学习"
@@ -86,7 +86,7 @@ summaryLength = 10
   author = "吉法师"
 
   # Description/subtitle for homepage (can be Markdown)
-  description = "努力学习，珍惜时间"
+  description = "不知道能否追到喜欢的人呀，今年努力下吧~ 2022.1.4"
 
   # Show header (default: true)
   header_visible = true
