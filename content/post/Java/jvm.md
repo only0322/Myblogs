@@ -4,6 +4,10 @@ date: 2022-01-04T18:40:40+08:00
 draft: true
 ---
 
+jvm知识导图
+
+![知识导图](/images/java/javaknows.png)
+
 ## 一、概述
 
 JVM是Java虚拟机的简称，那Jvm到底做了什么事情呢？其实是实现了Java的一次编译，到处运行。
