@@ -10,3 +10,4 @@ draft: true
 4. [axios具体使用](/post/front/axios)
 5. [Vue电商管理系统](/post/front/pos)
 6. [Vue+Electron环境搭建](/post/front/elevue)
+7. [electron打包](/post/front/electron打包)
