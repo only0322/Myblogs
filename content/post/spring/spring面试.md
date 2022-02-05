@@ -130,3 +130,20 @@ XML 配置文件。
 
 基于 java 的配置。
 
+#### 18. 解释 Spring 支持的几种bean的作用域?
+
+singleton作用域 : 是spring默认的作用域,bean 在每个 Spring ioc 容器中只有一个实例。
+
+prototype作用域：一个 bean 的定义可以有多个实例,但该作用域谨慎使用，频繁创建和销毁会严重影响性能。
+
+request作用域：每次 http 请求都会创建一个 bean， 该作用域仅在基于 web 的 Spring Application Context 情况下有效。
+
+session作用域：在一个 HTTP Session 中，一个 bean 定义对应一个实例。该作用域仅在基于 web 的 Spring Application Context 情况下有效 。
+
+global-session作用域：在一个全局的 HTTP Session 中，一个 bean 定义对应一个实例。该作用域仅在基于 web 的 Spring Application Context 情况下有效。
+
+
+#### 19. Spring 框架中的单例 bean是线程安全的吗？
+
+Spring 框架中的单例 bean 不是线程安全的，spring 中的 bean 默认是单例模式，Spring框架并没有对单例 bean 进行多线程的封装处理。实际上大部分时候 spring bean 是无状态的（比如 dao类），某种程度上来说 bean 也是安全的，但如果 bean 有状态的话（比如 view model 对象），那就要开发者自己去保证线程安全了。最简单的就是改变 bean 的作用域，把“singleton”变更为“prototype”，这样请求 bean 相当于 new Bean()了，就可以保证线程安全了。
+
